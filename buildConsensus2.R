@@ -49,4 +49,4 @@ thisFile2 <- getPermlink(repository = thisRepo,
 write.csv(rankConsensus, file = 'rankConsensusNetwork2.csv', quote=F, row.names = F)
 obj = File(file = 'rankConsensusNetwork2.csv', name = 'rankConsensusNetwork2.csv', parentId = folder.id)
 annotations(obj) = list(fileType = 'csv', resultsType = 'network', algorithm = 'rankconsensus')
-obj = synStore(obj, used = net.files$file.id, executed = c(thisFile1, thisFile2), activityName = 'Build rank consensus')
+obj = synStore(obj, used = net.files$file.id, executed = list(thisFile1, thisFile2), activityName = 'Build rank consensus')
