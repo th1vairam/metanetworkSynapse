@@ -23,19 +23,23 @@ library(githubr)
 synapseLogin()
 
 ## Get gold standard networks from DREAM5 synapse project
-GOLD.STD.IDs = c('InSilico' = 'syn2787240', 'SAureus' = 'syn2787242', 'EColi' = 'syn2787243', 'SCerevisiae' = 'syn2787244')
+GOLD.STD.IDs = c('InSilico1' = 'syn2787240', 'SAureus1' = 'syn2787242', 'EColi1' = 'syn2787243', 'SCerevisiae1' = 'syn2787244',
+                 'InSilico2' = 'syn2787240', 'SAureus2' = 'syn2787242', 'EColi2' = 'syn2787243', 'SCerevisiae2' = 'syn2787244')
 
 ## Get gene id mapping from DREAM5 synapse project
-GENE.MAP.IDs = c('InSilico' = 'syn2787224', 'SAureus' = 'syn2787228', 'EColi' = 'syn2787232', 'SCerevisiae' = 'syn2787236')
+GENE.MAP.IDs = c('InSilico1' = 'syn2787224', 'SAureus1' = 'syn2787228', 'EColi1' = 'syn2787232', 'SCerevisiae1' = 'syn2787236',
+                 'InSilico2' = 'syn2787224', 'SAureus2' = 'syn2787228', 'EColi2' = 'syn2787232', 'SCerevisiae2' = 'syn2787236')
 
 ## Get rank consensus network from synapse
-RANK.CONS.IDs = c('InSilico' = 'syn7291746', 'SAureus' = 'syn7268441', 'EColi' = 'syn7301787', 'SCerevisiae' = 'syn7301801')
+RANK.CONS.IDs = c('InSilico1' = 'syn7291746', 'SAureus1' = 'syn7268441', 'EColi1' = 'syn7301787', 'SCerevisiae1' = 'syn7301801',
+                  'InSilico2' = 'syn7499788', 'SAureus2' = 'syn7499798', 'EColi2' = 'syn7499856', 'SCerevisiae2' = 'syn7499888')
 
 ## Get bic network from synapse
-BIC.IDs = c('InSilico' = 'syn7291744', 'SAureus' = 'syn7268438', 'EColi' = 'syn7301783', 'SCerevisiae' = 'syn7301799')
+BIC.IDs = c('InSilico1' = 'syn7291744', 'SAureus1' = 'syn7268438', 'EColi1' = 'syn7301783', 'SCerevisiae1' = 'syn7301799',
+            'InSilico2' = 'syn7291744', 'SAureus2' = 'syn7268438', 'EColi2' = 'syn7301783', 'SCerevisiae2' = 'syn7301799')
 
 # Calculate performance
-all.results = mapply(function(gld.std.id, gene.map.id, rank.cons.id, bic.id){
+calcPerformance <- function(gld.std.id, gene.map.id, rank.cons.id, bic.id, rowNames){
   # Get gold standard network from synapse 
   net.edge.gs = read.table(synGet(gld.std.id)@filePath, header=F) %>%
     filter(V3 == 1)
@@ -51,8 +55,8 @@ all.results = mapply(function(gld.std.id, gene.map.id, rank.cons.id, bic.id){
   colnames(gs.adj) = V(g)$Gene.ID
   
   # Get rank consensus network from synapse
-  adj = read.csv(synGet(rank.cons.id)@filePath, header = T, row.names = 1)
-  rownames(adj) = gsub('\\.','-', rownames(adj))
+  adj = read.csv(synGet(rank.cons.id)@filePath, header = T, row.names = rowNames)
+  rownames(adj) = gsub('\\.','-', colnames(adj))
   colnames(adj) = gsub('\\.','-', colnames(adj))
   adj = adj[rownames(gs.adj), colnames(gs.adj)]
   
@@ -70,7 +74,7 @@ all.results = mapply(function(gld.std.id, gene.map.id, rank.cons.id, bic.id){
   pr = performance(pred, measure = 'prec')@y.values[[1]]
   rc = performance(pred, measure = 'rec')@y.values[[1]]
   aupr.raw = pracma::trapz(rc[!is.na(rc) & !is.na(pr)], pr[!is.na(rc) & !is.na(pr)])
-    
+  
   # Get bic network
   load(synGet(bic.id)@filePath)
   adj.bic = bicNetworks$network
@@ -92,7 +96,7 @@ all.results = mapply(function(gld.std.id, gene.map.id, rank.cons.id, bic.id){
   aupr.bic = pracma::trapz(rc[!is.na(rc) & !is.na(pr)], pr[!is.na(rc) & !is.na(pr)])
   
   tmp.bic.adj[tmp.bic.adj != 0] = 1
-
+  
   return(list(performance = data.frame(auc.raw = auc.raw, aupr.raw = aupr.raw, 
                                        auc.bic = auc.bic, aupr.bic = aupr.bic, 
                                        tp = sum(tmp.bic.adj[tmp.gs.adj == 1] == 1)/2,
@@ -101,10 +105,14 @@ all.results = mapply(function(gld.std.id, gene.map.id, rank.cons.id, bic.id){
                                        fn = sum(tmp.bic.adj[tmp.gs.adj == 1] == 0)/2),
               roc.raw = roc.raw,
               roc.bic = roc.bic))
-}, GOLD.STD.IDs, GENE.MAP.IDs, RANK.CONS.IDs, BIC.IDs, SIMPLIFY = F)
+}
+all.results = c(mapply(calcPerformance, GOLD.STD.IDs[1:4], GENE.MAP.IDs[1:4], RANK.CONS.IDs[1:4], BIC.IDs[1:4], 
+                       MoreArgs = list(rowNames = 1), SIMPLIFY = F),
+                mapply(calcPerformance, GOLD.STD.IDs[5:8], GENE.MAP.IDs[5:8], RANK.CONS.IDs[5:8], BIC.IDs[5:8], 
+                       MoreArgs = list(rowNames = NULL), SIMPLIFY = F))
 
 pdf(file = 'ROCPlots.pdf', width = 10, height = 10)
-for (i in 1:4){
+for (i in 1:8){
   plot(all.results[[i]]$roc.raw); 
   par(new=TRUE);
   plot(all.results[[i]]$roc.bic, main = paste('DREAM5', names(all.results)[i]))
