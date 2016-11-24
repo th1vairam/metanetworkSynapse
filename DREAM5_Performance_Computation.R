@@ -131,7 +131,7 @@ all.performance = lapply(all.results, function(x){
 # Get github commit link
 thisRepo <- getRepo(repository = "th1vairam/metanetworkSynapse", 
                     ref="branch", 
-                    refName='net_eval')
+                    refName='rank_cons')
 
 thisFile <- getPermlink(repository = thisRepo,
                         repositoryPath = 'DREAM5_Performance_Computation.R')
