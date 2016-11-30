@@ -1,8 +1,8 @@
 # Build BIC network from rankconsensus network
 
 # Input
-folder.id = 'syn7264610' # Change the folder id argument for source networks
-expr.id = 'syn7248622' # Change the expression id argument for relevant expression file
+folder.id = 'syn7268377' # Change the folder id argument for source networks
+expr.id = 'syn7248639' # Change the expression id argument for relevant expression file
 
 # Load Libraries
 library(synapseClient)
