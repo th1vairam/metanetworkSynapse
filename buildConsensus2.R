@@ -1,7 +1,7 @@
 # Build rank consensus network from individual networks
 
 # Input
-folder.id = 'syn7268432' # Change the folder id argument for source networks
+folder.id = 'syn7248648' # Change the folder id argument for source networks
 
 # Load Libraries
 library(synapseClient)
