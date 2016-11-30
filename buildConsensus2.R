@@ -1,7 +1,7 @@
 # Build rank consensus network from individual networks
 
 # Input
-folder.id = 'syn7268837' # Change the folder id argument for source networks
+folder.id = 'syn7264610' # Change the folder id argument for source networks
 
 # Load Libraries
 library(synapseClient)
@@ -15,14 +15,13 @@ library(plyr)
 library(dplyr)
 library(stringr)
 
-synapseLogin()
+library(metanetwork)
 
-source('./rankConsensus2.R')
+synapseLogin()
 
 # Get source networks
 net.files = synQuery(paste0('select name,id from file where parentId == "', folder.id,'"')) 
-ind = setdiff(grep('.csv', net.files$file.name),
-              grep('rankConsensusNetwork', net.files$file.name))
+ind = setdiff(grep('.csv', net.files$file.name), grep('rankConsensusNetwork', net.files$file.name))
 net.files = net.files[ind,]
 
 all.networks <- lapply(net.files$file.id, function(id){
@@ -33,7 +32,7 @@ all.networks <- lapply(net.files$file.id, function(id){
 gc()
 
 # Build rankconsensus
-rankConsensus <- rankConsensus2(all.networks)
+rankConsensus <- metanetwork::rankConsensus2(all.networks)
 
 # Get github commit links
 thisRepo <- getRepo(repository = "th1vairam/metanetworkSynapse", 
@@ -42,11 +41,9 @@ thisRepo <- getRepo(repository = "th1vairam/metanetworkSynapse",
 
 thisFile1 <- getPermlink(repository = thisRepo,
                          repositoryPath = 'buildConsensus2.R')
-thisFile2 <- getPermlink(repository = thisRepo,
-                         repositoryPath = 'rankConsensus2.R')
 
 # Write results to synapse
-write.csv(rankConsensus, file = 'rankConsensusNetwork2.csv', quote=F, row.names = F)
+write.csv(rankConsensus, file = 'rankConsensusNetwork2.csv', quote=F, row.names = T)
 obj = File('rankConsensusNetwork2.csv', name = 'rankConsensusNetwork2.csv', parentId = folder.id)
 annotations(obj) = list(fileType = 'csv', resultsType = 'network', algorithm = 'rankconsensus')
 obj = synStore(obj, used = net.files$file.id, executed = list(thisFile1, thisFile2), activityName = 'Build rank consensus')
