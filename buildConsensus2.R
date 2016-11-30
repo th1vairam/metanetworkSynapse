@@ -1,7 +1,7 @@
 # Build rank consensus network from individual networks
 
 # Input
-folder.id = 'syn7264610' # Change the folder id argument for source networks
+folder.id = 'syn7268377' # Change the folder id argument for source networks
 
 # Load Libraries
 library(synapseClient)
@@ -46,4 +46,4 @@ thisFile1 <- getPermlink(repository = thisRepo,
 write.csv(rankConsensus, file = 'rankConsensusNetwork2.csv', quote=F, row.names = T)
 obj = File('rankConsensusNetwork2.csv', name = 'rankConsensusNetwork2.csv', parentId = folder.id)
 annotations(obj) = list(fileType = 'csv', resultsType = 'network', algorithm = 'rankconsensus')
-obj = synStore(obj, used = net.files$file.id, executed = list(thisFile1, thisFile2), activityName = 'Build rank consensus')
+obj = synStore(obj, used = as.character(net.files$file.id), executed = thisFile1, activityName = 'Build rank consensus')
