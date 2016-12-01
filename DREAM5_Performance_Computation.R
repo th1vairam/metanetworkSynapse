@@ -106,7 +106,7 @@ performance.rc = lapply(names(rank.cons.ids), function(x, gld.std.id, gene.map.i
 c(gold.std.ids, gold.std.ids), c(gene.map.ids, gene.map.ids), rank.cons.ids)
 names(performance.rc) = names(rank.cons.ids)
 performance.rc = rbindlist(performance.rc, idcol = 'Name') %>%
-  dplyr::rename(hub.pval = pval, hub.or = odds.ratio)
+  dplyr::rename(hub.pval = pval, hub.or = odds.ratio, auroc = auc)
   
 # Calculate performance metrics for BIC networks
 performance.bic = lapply(names(bic.ids), function(x, gld.std.id, gene.map.id, bic.id){
