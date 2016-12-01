@@ -63,6 +63,9 @@ performance.rc = lapply(names(rank.cons.ids), function(x, gld.std.id, gene.map.i
   colnames(gs.adj) = V(g)$Gene.ID
   
   # Get gold standard hubs
+  gs.adj = gs.adj + t(gs.adj)
+  gs.adj[gs.adj > 1] = 1
+  
   gs.nd = rowSums(gs.adj, na.rm = T)
   gs.hubs = names(gs.nd)[gs.nd >= (median(gs.nd) + sd(gs.nd))]
   
@@ -78,9 +81,6 @@ performance.rc = lapply(names(rank.cons.ids), function(x, gld.std.id, gene.map.i
   hubs = names(nd)[nd >= (median(nd) + sd(nd))]
   
   # Compute AUPR and AUROC
-  gs.adj = gs.adj + t(gs.adj)
-  gs.adj[gs.adj > 1] = 1
-  
   tmp.adj = as.vector(as.matrix(adj))
   tmp.gs.adj = as.vector(as.matrix(gs.adj))
   
@@ -125,6 +125,9 @@ performance.bic = lapply(names(bic.ids), function(x, gld.std.id, gene.map.id, bi
   colnames(gs.adj) = V(g)$Gene.ID
   
   # Get gold standard hubs
+  gs.adj = gs.adj + t(gs.adj)
+  gs.adj[gs.adj > 1] = 1
+  
   gs.nd = rowSums(gs.adj, na.rm = T)
   gs.hubs = names(gs.nd)[gs.nd > (median(gs.nd) + sd(gs.nd))]
   
@@ -178,6 +181,9 @@ performance.bic.rc = lapply(names(bic.ids), function(x, gld.std.id, gene.map.id,
   colnames(gs.adj) = V(g)$Gene.ID
   
   # Get gold standard hubs
+  gs.adj = gs.adj + t(gs.adj)
+  gs.adj[gs.adj > 1] = 1
+  
   gs.nd = rowSums(gs.adj, na.rm = T)
   gs.hubs = names(gs.nd)[gs.nd > (median(gs.nd) + sd(gs.nd))]
   
@@ -203,12 +209,9 @@ performance.bic.rc = lapply(names(bic.ids), function(x, gld.std.id, gene.map.id,
   bic.nd = rowSums(adj.bic, na.rm = T)
   bic.hubs = names(bic.nd)[bic.nd > (median(bic.nd) + sd(bic.nd))]
   
-  tmp.bic.adj = as.vector(as.matrix(adj.bic))
-  
   # Compute AUPR and AUROC
-  gs.adj = gs.adj + t(gs.adj)
-  gs.adj[gs.adj > 1] = 1
   tmp.gs.adj = as.vector(as.matrix(gs.adj))
+  tmp.bic.adj = as.vector(as.matrix(adj.bic))
   
   pred = prediction(tmp.bic.adj, tmp.gs.adj)
   
